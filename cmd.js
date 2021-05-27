@@ -40,18 +40,39 @@ yargs.command({
         }
     },
     handler: (argv) => {
-        const newNote = [{
-            title: argv.title,
-            message: argv.message
-        }]
+        // Pour modifier le contenu d'un fichier
+        // 1. le récupérer
+        fs.readFile("data.json", "utf-8", (err,dataStr) => {
+            // 1a. Grâce à utf-8, le contenu du fichier
+            // est en  en chaîne de caractère
+            console.log(dataStr)
 
-        const newNoteJSON = JSON.stringify(newNote);
-        fs.writeFile("data.json",newNoteJSON,(err) => {
-            if(err) console.log(err);
-            else {
-                console.log("La nouvelle note a été sauvegardée");
+            // 1b. Je transforme la string JSON en valeur JS
+            const notes = JSON.parse(dataStr)
+            console.log(notes);
+    
+            // 2. Exécuter les modifications en JS
+
+            const newNote = {
+                title: argv.title,
+                message: argv.message
             }
-        });
+
+            notes.push(newNote);
+            console.log(notes);
+    
+            // 2b. Transformer mes modifs valeurs JS en chaine JSON
+            const notesJSON = JSON.stringify(notes);
+            console.log(notesJSON);
+
+            // 3. Envoyer les modifs de mon JSON en écrasant le fichier
+            fs.writeFile("data.json",notesJSON,(err) => {
+                if(err) console.log(err);
+                else {
+                    console.log("La note a été ajoutée");
+                }
+            });
+        })
     }
 }).command({
     command: 'remove',
