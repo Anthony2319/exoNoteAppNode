@@ -1,5 +1,6 @@
 const yargs = require('yargs');
 const fs = require("fs");
+const { argv } = require('process');
 
 yargs.command({
     command: 'list',
@@ -54,10 +55,11 @@ yargs.command({
             // 2. Exécuter les modifications en JS
 
             const newNote = {
+                id: '',
                 title: argv.title,
                 message: argv.message
             }
-
+            newNote.id = notes.length +1;
             notes.push(newNote);
             console.log(notes);
     
@@ -77,13 +79,39 @@ yargs.command({
 }).command({
     command: 'remove',
     describe: "Supprime une note",
-    handler: () => {
+    builder: {
+        id :{
+            describe : "id de la note que vous souhaitez delete",
+            demandOption : true,
+            type: "int"
+        }
+
+    },
+    handler: (argv) => {
         console.log("Chaud pour supprimer une note");
+
+        fs.readFile("data.json","utf-8",(err, dataStr) => {
+            const notes = JSON.parse(dataStr)
+            delete notes[argv.id -1];
+            console.log(notes);
+        });
     }
 }).command({
     command: 'read',
     describe: "Affiche le détail d'une note",
-    handler: () => {
+    builder: {
+        id :{
+            describe : "id de la note que vous souhaitez voir",
+            demandOption : true,
+            type: "int"
+        }
+    },
+    handler: (argv) => {
         console.log("Voici le détail d'une note");
+
+        fs.readFile("data.json", "utf-8", (err,dataStr) => {
+            const notes = JSON.parse(dataStr);
+            console.log(notes[argv.id -1])
+        })
     }
 }).argv;
